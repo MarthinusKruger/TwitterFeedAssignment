@@ -1,6 +1,7 @@
 package org.example.mapper;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.example.exception.DataException;
 import org.example.model.TwitterFollowers;
 import org.example.model.TwitterTweets;
@@ -17,7 +18,6 @@ import java.util.regex.Pattern;
 public class TweetDataMapper extends AbstractDataMapper implements DataMapper<TwitterTweets> {
 
   private static final Pattern REGEX_TWEETS = Pattern.compile("^([a-zA-Z]+)>\\s((.){1,139})$");
-  private static final int MAX_TWEET_LENGTH = 140;
   private final TwitterFollowers twitterFollowers;
 
   /**
@@ -59,11 +59,20 @@ public class TweetDataMapper extends AbstractDataMapper implements DataMapper<Tw
       return twitterTweets;
     }
 
-    // TODO: What if empty line?
     // Loop through the file and parse tweets into Twitter Tweet object
     int lineCounter = 1;
     for (String line : fileData) {
-      log.debug("Tweet Record: " + line);
+
+      // In the case where empty lines occurs, just skip as it won't affect data, but log warning
+      if (StringUtils.isAllBlank(line)) {
+        log.warn("Line " + lineCounter + " contains only whitespace/empty line, skipping...");
+        continue;
+      }
+
+      log.debug("Raw Tweet Record: " + line);
+
+      // Strip any starting and ending spaces before pattern matching (acceptable user content)
+      line = StringUtils.strip(line);
       Matcher matcher = REGEX_TWEETS.matcher(line);
 
       // If data line matches pattern then extract specific values from pattern group
@@ -77,6 +86,17 @@ public class TweetDataMapper extends AbstractDataMapper implements DataMapper<Tw
 
         log.debug("Record Group 1: " + user);
         log.debug("Record Group 2: " + tweet);
+
+
+        /*
+        If tweet is found that does not have linking user then
+        proceed by adding a single 1-1 mapping where the user
+        will only see their own tweets as user is following no one
+        and no one is following said user (which is a valid use case).
+         */
+        if (!twitterFollowers.hasFollowers(user)) {
+          twitterFollowers.addFollower(user, user);
+        }
 
         /*
         Pass list of followers for user that made tweet to ensure tweet is assigned to

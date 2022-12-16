@@ -37,6 +37,6 @@ public class TwitterTweets {
    * @return List of tweets that the Twitter follower should see on their feed
    */
   public List<String> getTweets(String follower) {
-    return tweets.get(follower);
+    return tweets.getOrDefault(follower, new LinkedList<>());
   }
 }

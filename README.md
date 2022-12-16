@@ -64,17 +64,65 @@ Ward
   feed to produce)
 - As per description, 7-bit ASCII files so assumption is not to catered for extended codes such as Twitter users
   containing umlaut etc.
+- Assumption that users defined in user.txt can only contain a-z and A-Z characters so no special or numerical
+  characters.
 - In the user input file, if a user follows themselves then continue processing as Twitter feed per user also includes
   own posts/tweets.
 - User can be defined across multiple lines in the user input file; any unique set of users will just be appended to
   existing data structure.
+- Any whitespace before or after user records in the user.txt file will be stripped perform pattern matching and not
+  considered malformed.
 - No limit is enforced on list of users as part of second group Y (X follows Y) in user input file.
 - Use case is valid where users exist but no tweets (no one has posted anything yet)
 - If any data lines in either user.txt and tweet.txt does not match pattern then assume malformed data and error out.
 - tweet.txt is ordered from newest to earliest tweets.
 - Twitter feed per user will ensure ordered from newest to oldest tweet.
 - Additional logging is added to console output for debugging purposes.
+- If there is a tweet in the tweet.txt file that does not link to a User found in the user.txt then it might be a user
+  that does not follow anyone yet and also no one is following currently so this user will also be added to the Twitter
+  feed and will only have tweets shown that they posted.
+- Twitter tweet with only whitespace is not allowed (technically no content) and will result in malformed data when
+  processing tweet.txt.
+
+## Architecture
+
+Program is written in Java (17) and using "Maven" for build and package management. Docker is used
+for reusable execution of program. Maven builds a JAR with all dependencies and JAR is executed using Amazon's Corretto
+17 base image.
 
 ## How to Run
 
-TODO
+### Requirements
+
+- docker
+- docker-compose
+- maven (if running natively)
+
+To run the program, there is a convenience `Dockerfile` and `docker-compose.yaml` to make it easier to test.
+
+Build image and run with stock files provided:
+_Note: As part of the `mvn package` command it will also execute the unit tests written._
+
+```
+DOCKER_BUILDKIT=1 docker-compose build
+docker-compose up
+```
+
+To test different data records, proceed by updating the data in the `src/main/resources` folder, specifically
+the `user.txt`
+and `tweet.txt` file present.
+
+### Unit Tests
+
+To run the unit tests natively (if required) proceed with below command:
+
+```
+mvn clean test jacoco:report
+```
+
+Note: Within the `target/site` there should
+
+### Debugging
+
+For more information during program execution, update the `LOG_LEVEL` environment variable in the `docker-compose.yaml`
+file from `INFO` to `DEBUG` and execute again.

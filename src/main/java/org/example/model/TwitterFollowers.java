@@ -42,6 +42,10 @@ public class TwitterFollowers {
     return followers.getOrDefault(user, null);
   }
 
+  public boolean hasFollowers(String user) {
+    return followers.containsKey(user);
+  }
+
   /**
    * Get unique set of Twitter users.
    *

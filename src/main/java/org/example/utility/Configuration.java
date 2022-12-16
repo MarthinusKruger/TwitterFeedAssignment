@@ -12,8 +12,8 @@ import org.example.exception.ConfigException;
 public class Configuration {
 
   // Constants
-  private static final String ENV_USER_FILE_PATH = "USER_FILE_PATH";
-  private static final String ENV_TWEET_FILE_PATH = "TWEET_FILE_PATH";
+  public static final String PROPERTY_USER_FILE_PATH = "path.file.user";
+  public static final String PROPERTY_TWEET_FILE_PATH = "path.file.tweet";
 
   // Global Variables
   private static String userFilePath;
@@ -24,32 +24,32 @@ public class Configuration {
   }
 
   /**
-   * Initialise program configuration by extracting environment variables
+   * Initialise program configuration by extracting properties
    * into runtime variables for use by program.
    *
-   * @throws ConfigException Occurs when mandatory environment variables aren't set.
+   * @throws ConfigException Occurs when mandatory properties aren't set.
    */
   public static void init() throws ConfigException {
-    // Extract file paths from environment variables
-    userFilePath = parseConfigElement(ENV_USER_FILE_PATH);
-    tweetFilePath = parseConfigElement(ENV_TWEET_FILE_PATH);
+    // Extract input file paths
+    userFilePath = parseConfigElement(PROPERTY_USER_FILE_PATH);
+    tweetFilePath = parseConfigElement(PROPERTY_TWEET_FILE_PATH);
   }
 
   /**
-   * Parse the environment variable passed and provide the value defined. Method assumes that
+   * Parse the property name passed and provide the value defined. Method assumes that
    * config field is mandatory (has to be set for program to run).
    *
-   * @param envVar The environment variable to lookup.
-   * @return The value of the environment variable.
-   * @throws ConfigException Occurs when the environment variable is empty or not set.
+   * @param envVar The property name to lookup.
+   * @return The value of the property.
+   * @throws ConfigException Occurs when the property is empty or not set.
    */
   private static String parseConfigElement(String envVar) throws ConfigException {
-    log.debug("Parsing value for environment variable - " + envVar);
-    String envVal = System.getenv(envVar);
+    log.debug("Parsing value for property - " + envVar);
+    String envVal = System.getProperty(envVar);
 
     // All values are mandatory so check if empty or wasn't set
     if (StringUtils.isBlank(envVal)) {
-      throw new ConfigException("Value not set for environment variable - " + envVar);
+      throw new ConfigException("Value not set for property - " + envVar);
     }
 
     log.debug("Extracted value: " + envVal);

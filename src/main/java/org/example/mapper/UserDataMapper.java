@@ -6,7 +6,6 @@ import org.example.exception.DataException;
 import org.example.model.TwitterFollowers;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,8 +61,17 @@ public class UserDataMapper extends AbstractDataMapper implements DataMapper<Twi
     // Loop through the file and parse users into Twitter followers object
     int lineCounter = 1;
     for (String line : fileData) {
-      // TODO: What happens if empty lines are found within the file?
-      log.debug("User Record: " + line);
+
+      // In the case where empty lines occurs, just skip as it won't affect data, but log warning
+      if (StringUtils.isAllBlank(line)) {
+        log.warn("Line " + lineCounter + " contains only whitespace/empty line, skipping...");
+        continue;
+      }
+
+      log.debug("Raw User Record: " + line);
+
+      // Strip any starting and ending spaces before pattern matching (acceptable user content)
+      line = StringUtils.strip(line);
       Matcher matcher = REGEX_USER_FOLLOWERS.matcher(line);
 
       // If data line matches pattern then extract specific values from pattern group
@@ -81,20 +89,8 @@ public class UserDataMapper extends AbstractDataMapper implements DataMapper<Twi
         log.debug("Record Group 1: " + follower);
         log.debug("Record Group 2: " + users);
 
-        /*
-        Determine if duplicate user is found in second group.
-        Won't error out as we keep unique set of users, but will issue warning as it's
-        a waste of data that needs to be rectified by source system generating these files.
-         */
-        List<String> userList = Arrays.asList(users.split(DELIMITER_USER_FOLLOWER));
-        int delimiterCount = StringUtils.countMatches(users, DELIMITER_USER_FOLLOWER);
-
-        if (delimiterCount != 0 && delimiterCount != (userList.size() - 1)) {
-          log.warn("Duplicate users found for user " + follower + " on line " + lineCounter);
-        }
-
         // Loop through list of users in second group and add follower
-        for (String user : userList) {
+        for (String user : users.split(DELIMITER_USER_FOLLOWER)) {
           twitterFollowers.addFollower(user, follower);
         }
 
@@ -106,6 +102,14 @@ public class UserDataMapper extends AbstractDataMapper implements DataMapper<Twi
       }
 
       lineCounter++;
+    }
+
+    /*
+    If the file is all whitespace and no user data ensure we check if we parsed any data.
+    Similar to above, if no users, then there is no Twitter feed to build.
+     */
+    if (twitterFollowers.getUsers() != null && twitterFollowers.getUsers().isEmpty()) {
+      throw new DataException("No user records found. No tweets can therefore exist to build Twitter feed.");
     }
 
     return twitterFollowers;

@@ -1,0 +1,14 @@
+---
+version: "3.7"
+services:
+  twitter-feed-assignment:
+    build:
+      context: .
+    image: twitter-feed-assignment:local
+    container_name: twitter-feed-assignment
+    environment:
+      - LOG_LEVEL=INFO
+      - JAVA_TOOL_OPTIONS=-Dpath.file.user=/data/user.txt -Dpath.file.tweet=/data/tweet.txt
+    volumes:
+      - ./src/main/resources/user.txt:/data/user.txt
+      - ./src/main/resources/tweet.txt:/data/tweet.txt

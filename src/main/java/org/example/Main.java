@@ -1,7 +1,7 @@
 package org.example;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.logic.TwitterFeedService;
+import org.example.service.TwitterFeedService;
 import org.example.utility.Configuration;
 
 /**
@@ -25,7 +25,8 @@ public class Main {
       Read the input files, build the required data structures
       and output the Twitter feed per user in documented format.
        */
-      TwitterFeedService.produceTwitterFeed();
+      String twitterFeed = TwitterFeedService.produceTwitterFeed();
+      log.info("Feed output\n" + twitterFeed);
 
       log.info("Twitter feed generated successfully!");
     } catch (Exception e) {
