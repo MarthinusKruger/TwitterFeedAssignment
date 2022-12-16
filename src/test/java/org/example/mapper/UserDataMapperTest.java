@@ -55,14 +55,18 @@ public class UserDataMapperTest {
   }
 
   /**
-   * Use case where data read from file is empty and should throw exception.
+   * Use case where data read from file is empty.
+   * Processing should continue without exception
+   * as we might still see users from tweet.txt file.
    *
    * @throws IOException
    * @throws DataException
    */
-  @Test(expected = DataException.class)
+  @Test
   public void testParseData_EmptyUserContent() throws IOException, DataException {
-    invokeParseData(new LinkedList<>());
+    TwitterFollowers twitterFollowers = invokeParseData(new LinkedList<>());
+    Assert.assertNotNull(twitterFollowers);
+    Assert.assertEquals("No users expected", 0, twitterFollowers.getUsers().size());
   }
 
   /**
@@ -203,19 +207,22 @@ public class UserDataMapperTest {
 
   /**
    * Yse case where file contains list whitespace lines and results in no users processed.
-   * Should throw exception as no users found (and users are required to build feed).
+   * Should continue as users could be added as part of tweet parsing.
    *
    * @throws IOException
    * @throws DataException
    */
-  @Test(expected = DataException.class)
+  @Test
   public void testParseData_EmptyLinesNoUsers() throws IOException, DataException {
     List<String> userData = new LinkedList<>();
     userData.add("    ");
     userData.add("    ");
     userData.add("    ");
 
-    invokeParseData(userData);
+    TwitterFollowers twitterFollowers = invokeParseData(userData);
+    
+    Assert.assertNotNull(twitterFollowers);
+    Assert.assertEquals("No users expected", 0, twitterFollowers.getUsers().size());
   }
 
   /**

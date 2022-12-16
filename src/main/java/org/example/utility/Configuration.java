@@ -37,7 +37,7 @@ public class Configuration {
 
   /**
    * Parse the property name passed and provide the value defined. Method assumes that
-   * config field is mandatory (has to be set for program to run).
+   * config field is mandatory.
    *
    * @param envVar The property name to lookup.
    * @return The value of the property.

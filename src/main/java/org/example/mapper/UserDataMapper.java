@@ -42,7 +42,8 @@ public class UserDataMapper extends AbstractDataMapper implements DataMapper<Twi
 
     // If there are no users then the feed would be empty, thus throw error
     if (fileData.isEmpty()) {
-      throw new DataException("No users exist in file " + filePath + ". No tweets can therefore exist to build Twitter feed.");
+      log.warn("No data in user file " + filePath + ". Might extract some users from tweet.txt.");
+      return new TwitterFollowers();
     }
 
     return parseTwitterFollowers(fileData);
@@ -59,8 +60,9 @@ public class UserDataMapper extends AbstractDataMapper implements DataMapper<Twi
     TwitterFollowers twitterFollowers = new TwitterFollowers();
 
     // Loop through the file and parse users into Twitter followers object
-    int lineCounter = 1;
+    int lineCounter = 0;
     for (String line : fileData) {
+      lineCounter++;
 
       // In the case where empty lines occurs, just skip as it won't affect data, but log warning
       if (StringUtils.isAllBlank(line)) {
@@ -100,16 +102,14 @@ public class UserDataMapper extends AbstractDataMapper implements DataMapper<Twi
         //  Strict pattern matching; error out program if malformed data record is found
         throw new DataException("User record on line " + lineCounter + " does not conform to pattern.\nRecord: " + line);
       }
-
-      lineCounter++;
     }
 
     /*
     If the file is all whitespace and no user data ensure we check if we parsed any data.
-    Similar to above, if no users, then there is no Twitter feed to build.
+    Similar to above, if no users, then log warning as we might get users from tweet.txt file.
      */
     if (twitterFollowers.getUsers() != null && twitterFollowers.getUsers().isEmpty()) {
-      throw new DataException("No user records found. No tweets can therefore exist to build Twitter feed.");
+      log.warn("No user records found. Might extract some users from tweet.txt.");
     }
 
     return twitterFollowers;

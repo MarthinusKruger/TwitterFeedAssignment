@@ -3,7 +3,8 @@ package org.example.model;
 import java.util.*;
 
 /**
- * POJO class for the Twitter tweets linked to the Twitter follower.
+ * POJO class for the Twitter tweets linked to the Twitter follower(s) that view
+ * it in their feed.
  */
 public class TwitterTweets {
 
@@ -11,8 +12,8 @@ public class TwitterTweets {
   private final Map<String, List<String>> tweets = new HashMap<>();
 
   /**
-   * Add a Twitter tweet to a set of followers that are following the owner/poster
-   * of passed tweet.
+   * Add a Twitter tweet to a set of followers that are following the owner
+   * of posted tweet.
    *
    * @param followers  Set of followers that will consume the tweet.
    * @param tweetOwner The owner of the tweet

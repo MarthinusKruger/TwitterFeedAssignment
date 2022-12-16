@@ -60,8 +60,9 @@ public class TweetDataMapper extends AbstractDataMapper implements DataMapper<Tw
     }
 
     // Loop through the file and parse tweets into Twitter Tweet object
-    int lineCounter = 1;
+    int lineCounter = 0;
     for (String line : fileData) {
+      lineCounter++;
 
       // In the case where empty lines occurs, just skip as it won't affect data, but log warning
       if (StringUtils.isAllBlank(line)) {
@@ -107,8 +108,6 @@ public class TweetDataMapper extends AbstractDataMapper implements DataMapper<Tw
         //  Strict pattern matching; error out program if malformed data record is found
         throw new DataException("Tweet record on line " + lineCounter + " does not conform to pattern.\nRecord: " + line);
       }
-
-      lineCounter++;
     }
 
     return twitterTweets;

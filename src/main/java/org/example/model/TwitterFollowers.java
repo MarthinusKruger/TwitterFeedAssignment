@@ -42,6 +42,12 @@ public class TwitterFollowers {
     return followers.getOrDefault(user, null);
   }
 
+  /**
+   * Does the user have any followers assign
+   *
+   * @param user The Twitter user
+   * @return true if user has followers, otherwise false.
+   */
   public boolean hasFollowers(String user) {
     return followers.containsKey(user);
   }

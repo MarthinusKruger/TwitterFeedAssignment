@@ -37,6 +37,10 @@ public final class TwitterFeedService {
     TweetDataMapper tweetDataMapper = new TweetDataMapper(twitterFollowers);
     TwitterTweets twitterTweets = tweetDataMapper.parseData(Configuration.getTweetFilePath());
 
+    /*
+    If no users defined after parsing both user.txt and tweet.txt then error out
+    as we can't build a feed without users of tweets.
+     */
     Set<String> users = twitterFollowers.getUsers();
     if (users == null || users.isEmpty()) {
       throw new DataException("No Twitter users found so no feed can be produced.");

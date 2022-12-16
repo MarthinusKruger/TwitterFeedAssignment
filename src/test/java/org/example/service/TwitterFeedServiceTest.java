@@ -28,16 +28,14 @@ import java.io.IOException;
     "org.w3c.dom.*", "org.apache.logging.*", "java.nio.*"})
 public final class TwitterFeedServiceTest {
 
-  private static final String TWITTER_FEED = """
-      Alan
-      \t@Alan: If you have a procedure with 10 parameters, you probably missed some.
-      \t@Alan: Random numbers should not be generated with a method chosen at random.
-      Martin
-      Ward
-      \t@Alan: If you have a procedure with 10 parameters, you probably missed some.
-      \t@Ward: There are only two hard things in Computer Science: cache invalidation, naming things and off-by-1 errors.
-      \t@Alan: Random numbers should not be generated with a method chosen at random.
-      """;
+  private static final String TWITTER_FEED = "Alan\n" +
+      "\t@Alan: If you have a procedure with 10 parameters, you probably missed some.\n" +
+      "\t@Alan: Random numbers should not be generated with a method chosen at random.\n" +
+      "Martin\n" +
+      "Ward\n" +
+      "\t@Alan: If you have a procedure with 10 parameters, you probably missed some.\n" +
+      "\t@Ward: There are only two hard things in Computer Science: cache invalidation, naming things and off-by-1 errors.\n" +
+      "\t@Alan: Random numbers should not be generated with a method chosen at random.\n";
 
   private static final UserDataMapper mockUserDataMapper = PowerMockito.mock(UserDataMapper.class);
   private static final TweetDataMapper mockTweetDataMapper = PowerMockito.mock(TweetDataMapper.class);
@@ -95,11 +93,9 @@ public final class TwitterFeedServiceTest {
 
   @Test
   public void testProduceTwitterFeed_UsersWithoutTweets() throws Exception {
-    final String expectedTwitterFeed = """
-        Alan
-        Martin
-        Ward
-        """;
+    final String expectedTwitterFeed = "Alan\n" +
+        "Martin\n" +
+        "Ward";
     TwitterFollowers twitterFollowers = new UserDataMapper().parseData("src/test/resources/user.txt");
 
     mockDataMappers();

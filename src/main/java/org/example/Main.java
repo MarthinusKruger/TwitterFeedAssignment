@@ -17,7 +17,7 @@ public class Main {
 
       /*
       Initialise configuration by extracting environment variables
-      into variables such as the paths to the input files.
+      such as the paths to the input files.
        */
       Configuration.init();
 
@@ -30,10 +30,7 @@ public class Main {
 
       log.info("Twitter feed generated successfully!");
     } catch (Exception e) {
-      /*
-      If an error occurs in the program then send failure
-      exit code.
-       */
+      // If an error occurs in the program then send failure exit code
       log.error("Failed to generate Twitter feed", e);
       System.exit(1);
     }
