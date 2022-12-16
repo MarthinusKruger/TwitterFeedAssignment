@@ -8,6 +8,7 @@ import org.example.model.TwitterFollowers;
 import org.example.model.TwitterTweets;
 import org.example.utility.Configuration;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -37,8 +38,14 @@ public final class TwitterFeedServiceTest {
       "\t@Ward: There are only two hard things in Computer Science: cache invalidation, naming things and off-by-1 errors.\n" +
       "\t@Alan: Random numbers should not be generated with a method chosen at random.\n";
 
-  private static final UserDataMapper mockUserDataMapper = PowerMockito.mock(UserDataMapper.class);
-  private static final TweetDataMapper mockTweetDataMapper = PowerMockito.mock(TweetDataMapper.class);
+  private static final UserDataMapper mockUserDataMapper = Mockito.mock(UserDataMapper.class);
+  private static final TweetDataMapper mockTweetDataMapper = Mockito.mock(TweetDataMapper.class);
+
+  @BeforeClass
+  public static void setup() throws Exception {
+    PowerMockito.whenNew(UserDataMapper.class).withNoArguments().thenReturn(mockUserDataMapper);
+    PowerMockito.whenNew(TweetDataMapper.class).withAnyArguments().thenReturn(mockTweetDataMapper);
+  }
 
   /**
    * Use case for successful processing and Twitter feed.
@@ -87,7 +94,8 @@ public final class TwitterFeedServiceTest {
   @Test(expected = DataException.class)
   public void testProduceTwitterFeed_NoUsers() throws Exception {
     mockDataMappers();
-    Mockito.doReturn(new TwitterFollowers()).when(mockUserDataMapper).parseData(Mockito.anyString());
+    Mockito.when(mockUserDataMapper.parseData(Mockito.anyString())).thenReturn(new TwitterFollowers());
+//    Mockito.doReturn(new TwitterFollowers()).when(mockUserDataMapper).parseData(Mockito.anyString());
     TwitterFeedService.produceTwitterFeed();
   }
 
@@ -95,12 +103,14 @@ public final class TwitterFeedServiceTest {
   public void testProduceTwitterFeed_UsersWithoutTweets() throws Exception {
     final String expectedTwitterFeed = "Alan\n" +
         "Martin\n" +
-        "Ward";
+        "Ward\n";
     TwitterFollowers twitterFollowers = new UserDataMapper().parseData("src/test/resources/user.txt");
 
     mockDataMappers();
-    Mockito.doReturn(twitterFollowers).when(mockUserDataMapper).parseData(Mockito.anyString());
-    Mockito.doReturn(new TwitterTweets()).when(mockTweetDataMapper).parseData(Mockito.anyString());
+    Mockito.when(mockUserDataMapper.parseData(Mockito.anyString())).thenReturn(twitterFollowers);
+    Mockito.when(mockTweetDataMapper.parseData(Mockito.anyString())).thenReturn(new TwitterTweets());
+//    Mockito.doReturn(twitterFollowers).when(mockUserDataMapper).parseData(Mockito.anyString());
+//    Mockito.doReturn(new TwitterTweets()).when(mockTweetDataMapper).parseData(Mockito.anyString());
     String twitterFeed = TwitterFeedService.produceTwitterFeed();
 
     Assert.assertEquals("Twitter feed mismatch", expectedTwitterFeed, twitterFeed);
