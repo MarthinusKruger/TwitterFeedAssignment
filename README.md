@@ -72,7 +72,7 @@ Ward
   own posts/tweets.
 - User can be defined across multiple lines in the user input file; any unique set of users will just be appended to
   existing data structure.
-- Any whitespace before or after user records in the user.txt file will be stripped perform pattern matching and not
+- Any whitespace before or after user records in the user.txt file will be stripped before pattern matching and not
   considered malformed.
 - No limit is enforced on list of users as part of second group Y (X follows Y) in user input file.
 - Use case is valid where users exist but no tweets (no one has posted anything yet)
@@ -84,9 +84,9 @@ Ward
 
 ## Architecture
 
-Program is written in Java (17) and using "Maven" for build and package management. Docker is used
+Program is written in Java (11) and using "Maven" for build and package management. Docker is used
 for reusable execution of program. Maven builds a JAR with all dependencies and JAR is executed using Amazon's Corretto
-17 base image.
+11 base image.
 
 ## How to Run
 
@@ -118,7 +118,7 @@ To run the unit tests natively (if required) proceed with below command:
 mvn clean test jacoco:report
 ```
 
-Note: Within the `target/site` there should
+Note: Within the `target/site` there should be a `index.html` file if one wanted to look at the Code Coverage as well.
 
 ### Debugging
 

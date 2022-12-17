@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3
 
 ## Builder
-FROM amazoncorretto:17-alpine3.15-jdk as builder
+FROM amazoncorretto:11-alpine3.15-jdk as builder
 
 ####################
 ## Label Manifest ##
@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     mvn package
 
 ## Runtime
-FROM amazoncorretto:17-alpine3.15
+FROM amazoncorretto:11-alpine3.15
 
 #######################
 ## Project Resources ##

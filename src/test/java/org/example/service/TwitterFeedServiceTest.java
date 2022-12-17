@@ -1,51 +1,21 @@
 package org.example.service;
 
-import lombok.extern.log4j.Log4j2;
 import org.example.exception.DataException;
-import org.example.mapper.TweetDataMapper;
-import org.example.mapper.UserDataMapper;
-import org.example.model.TwitterFollowers;
-import org.example.model.TwitterTweets;
 import org.example.utility.Configuration;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.IOException;
 
 /**
  * Test class for TwitterFeedService class.
  */
-@Log4j2
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(TwitterFeedService.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*",
-    "org.w3c.dom.*", "org.apache.logging.*", "java.nio.*"})
 public final class TwitterFeedServiceTest {
 
-  private static final String TWITTER_FEED = "Alan\n" +
-      "\t@Alan: If you have a procedure with 10 parameters, you probably missed some.\n" +
-      "\t@Alan: Random numbers should not be generated with a method chosen at random.\n" +
-      "Martin\n" +
-      "Ward\n" +
-      "\t@Alan: If you have a procedure with 10 parameters, you probably missed some.\n" +
-      "\t@Ward: There are only two hard things in Computer Science: cache invalidation, naming things and off-by-1 errors.\n" +
-      "\t@Alan: Random numbers should not be generated with a method chosen at random.\n";
+  private static final String USER_FILE_VALID = "src/test/resources/user.txt";
+  private static final String USER_FILE_EMPTY = "src/test/resources/user_empty.txt";
 
-  private static final UserDataMapper mockUserDataMapper = Mockito.mock(UserDataMapper.class);
-  private static final TweetDataMapper mockTweetDataMapper = Mockito.mock(TweetDataMapper.class);
-
-  @BeforeClass
-  public static void setup() throws Exception {
-    PowerMockito.whenNew(UserDataMapper.class).withNoArguments().thenReturn(mockUserDataMapper);
-    PowerMockito.whenNew(TweetDataMapper.class).withAnyArguments().thenReturn(mockTweetDataMapper);
-  }
+  private static final String TWEET_FILE_VALID = "src/test/resources/tweet.txt";
+  private static final String TWEET_FILE_EMPTY = "src/test/resources/tweet_empty.txt";
+  private static final String TWEET_FILE_PIET = "src/test/resources/tweet_piet.txt";
 
   /**
    * Use case for successful processing and Twitter feed.
@@ -58,71 +28,77 @@ public final class TwitterFeedServiceTest {
    */
   @Test
   public void testProduceTwitterFeed_HappyPath() throws Exception {
-    System.setProperty(Configuration.PROPERTY_USER_FILE_PATH, "src/test/resources/user.txt");
-    System.setProperty(Configuration.PROPERTY_TWEET_FILE_PATH, "src/test/resources/tweet.txt");
+    String expectedTwitterFeed = "Alan\n" +
+        "\t@Alan: If you have a procedure with 10 parameters, you probably missed some.\n" +
+        "\t@Alan: Random numbers should not be generated with a method chosen at random.\n" +
+        "Martin\n" +
+        "Ward\n" +
+        "\t@Alan: If you have a procedure with 10 parameters, you probably missed some.\n" +
+        "\t@Ward: There are only two hard things in Computer Science: cache invalidation, naming things and off-by-1 errors.\n" +
+        "\t@Alan: Random numbers should not be generated with a method chosen at random.\n";
+
+    System.setProperty(Configuration.PROPERTY_USER_FILE_PATH, USER_FILE_VALID);
+    System.setProperty(Configuration.PROPERTY_TWEET_FILE_PATH, TWEET_FILE_VALID);
     Configuration.init();
 
     String twitterFeed = TwitterFeedService.produceTwitterFeed();
     Assert.assertNotNull(twitterFeed);
-    Assert.assertEquals("Feed does not match expected", TWITTER_FEED, twitterFeed);
+    Assert.assertEquals("Feed does not match expected", expectedTwitterFeed, twitterFeed);
   }
 
   /**
-   * Test use case where data mapper throws exception that should result in program
-   * erroring out.
+   * Use case tested where users in input file, but tweet file is empty.
+   * Should process as expected and printout list of users
+   * in natural ordering (alphabetical order).
    *
    * @throws Exception
    */
-  @Test(expected = IOException.class)
-  public void testProduceTwitterFeed_IOException() throws Exception {
-    mockDataMappers();
-    Mockito.doThrow(new IOException()).when(mockUserDataMapper).parseData(Mockito.anyString());
-    TwitterFeedService.produceTwitterFeed();
-  }
-
-  /**
-   * Use case where data mapper errors out due to data being malformed, should
-   * also result in error being thrown.
-   */
-  @Test(expected = DataException.class)
-  public void testProduceTwitterFeed_DataException() throws Exception {
-    mockDataMappers();
-    Mockito.doThrow(new DataException("Dummy message")).when(mockUserDataMapper).parseData(Mockito.anyString());
-    TwitterFeedService.produceTwitterFeed();
-  }
-
-  @Test(expected = DataException.class)
-  public void testProduceTwitterFeed_NoUsers() throws Exception {
-    mockDataMappers();
-    Mockito.when(mockUserDataMapper.parseData(Mockito.anyString())).thenReturn(new TwitterFollowers());
-//    Mockito.doReturn(new TwitterFollowers()).when(mockUserDataMapper).parseData(Mockito.anyString());
-    TwitterFeedService.produceTwitterFeed();
-  }
-
   @Test
   public void testProduceTwitterFeed_UsersWithoutTweets() throws Exception {
     final String expectedTwitterFeed = "Alan\n" +
         "Martin\n" +
         "Ward\n";
-    TwitterFollowers twitterFollowers = new UserDataMapper().parseData("src/test/resources/user.txt");
+    System.setProperty(Configuration.PROPERTY_USER_FILE_PATH, USER_FILE_VALID);
+    System.setProperty(Configuration.PROPERTY_TWEET_FILE_PATH, TWEET_FILE_EMPTY);
+    Configuration.init();
 
-    mockDataMappers();
-    Mockito.when(mockUserDataMapper.parseData(Mockito.anyString())).thenReturn(twitterFollowers);
-    Mockito.when(mockTweetDataMapper.parseData(Mockito.anyString())).thenReturn(new TwitterTweets());
-//    Mockito.doReturn(twitterFollowers).when(mockUserDataMapper).parseData(Mockito.anyString());
-//    Mockito.doReturn(new TwitterTweets()).when(mockTweetDataMapper).parseData(Mockito.anyString());
+
     String twitterFeed = TwitterFeedService.produceTwitterFeed();
 
     Assert.assertEquals("Twitter feed mismatch", expectedTwitterFeed, twitterFeed);
   }
 
   /**
-   * Utility method to return mocked data mapper objects to test different use cases.
+   * Use case where no users in input file, but tweets exist so user(s)
+   * sourced from there and presented as a feed with own posts.
    *
    * @throws Exception
    */
-  private void mockDataMappers() throws Exception {
-    PowerMockito.whenNew(UserDataMapper.class).withNoArguments().thenReturn(mockUserDataMapper);
-    PowerMockito.whenNew(TweetDataMapper.class).withAnyArguments().thenReturn(mockTweetDataMapper);
+  @Test
+  public void testProduceTwitterFeed_NoUsersWithTweets() throws Exception {
+    final String expectedTwitterFeed = "Piet\n" +
+        "\t@Piet: Tweet tweet.\n";
+    System.setProperty(Configuration.PROPERTY_USER_FILE_PATH, USER_FILE_EMPTY);
+    System.setProperty(Configuration.PROPERTY_TWEET_FILE_PATH, TWEET_FILE_PIET);
+    Configuration.init();
+
+    String twitterFeed = TwitterFeedService.produceTwitterFeed();
+
+    Assert.assertEquals("Twitter feed mismatch", expectedTwitterFeed, twitterFeed);
+  }
+
+  /**
+   * If both the user and tweet file is empty and no users extracted then error
+   * out as we cannot build feed without any Twitter users.
+   *
+   * @throws Exception
+   */
+  @Test(expected = DataException.class)
+  public void testProduceTwitterFeed_NoUsersNoTweetsAfterParsing() throws Exception {
+    System.setProperty(Configuration.PROPERTY_USER_FILE_PATH, USER_FILE_EMPTY);
+    System.setProperty(Configuration.PROPERTY_TWEET_FILE_PATH, TWEET_FILE_EMPTY);
+    Configuration.init();
+
+    TwitterFeedService.produceTwitterFeed();
   }
 }
