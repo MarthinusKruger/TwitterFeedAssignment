@@ -21,7 +21,7 @@ public class AbstractDataMapperTest {
   private AbstractDataMapper abstractDataMapper;
 
   @Before
-  public void beforeTest() {
+  public void setupBeforeTest() {
     abstractDataMapper = Mockito.mock(AbstractDataMapper.class, Mockito.CALLS_REAL_METHODS);
   }
 

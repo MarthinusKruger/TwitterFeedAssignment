@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class ConfigurationTest {
 
   @Before
-  public void setup() {
+  public void setupBeforeTest() {
     System.clearProperty(Configuration.PROPERTY_USER_FILE_PATH);
     System.clearProperty(Configuration.PROPERTY_TWEET_FILE_PATH);
   }
